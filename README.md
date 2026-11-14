@@ -13,3 +13,14 @@ Actions GitHub compile l'APK Android et l'application Windows (EXE + DLL, archiv
 
 ## Utilisation
 La V2 propose le jeu local sur un seul écran, à tour de rôle. Les mains sont affichées à l'écran ; la confidentialité entre joueurs n'est pas encore assurée. Pas de mode en ligne, d'IA adverse ou de sauvegarde pour l'instant.
+
+
+## V3 : trois habillages graphiques
+
+- **Coloré** : dégradés vifs, mascottes, confettis.
+- **Art déco** : tons émeraude et or, bordures géométriques.
+- **BD explosive** : couleurs punchy, traits dynamiques.
+- Choix du thème sur l'accueil et via l'icône palette pendant la partie.
+- Visuels d'accueil inclus hors connexion dans `assets/themes/`.
+- `imprimable/cartes.html` : même choix parmi les trois styles, 48 cartes au format 63 × 88 mm en 6 feuilles A4.
+- Les cartes spéciales vues dans les maquettes sont **conceptuelles** : aucune carte Piège/Échange/Double n'est ajoutée aux règles de réflexion de la V2 à cette étape.
