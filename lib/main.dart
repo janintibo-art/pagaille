@@ -29,7 +29,9 @@ const comicColors = <Color>[
   Color(0xfff47b25),
   Color(0xffdb3c42),
 ];
-const cardMascots = <String>['🐢', '🐰', '🦊', '🐔', '🦝', '🐱'];
+const cardMascots = <String>['La tortue', 'Le lapin', 'Le renard', 'La poule', 'Le raton', 'Le chat'];
+const themeKeys = <String>['colore', 'deco', 'bd'];
+String cardArtwork(int theme, int value) => 'imprimable/illustrations/${themeKeys[theme]}_$value.jpg';
 
 class VisualSpec {
   const VisualSpec({
@@ -600,20 +602,29 @@ class _GamePageState extends State<GamePage> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const SizedBox(height: 10),
-                    Text(cardMascots[value - 1], style: const TextStyle(fontSize: 34)),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 8),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(9),
+                      child: Image.asset(
+                        cardArtwork(visualTheme, value),
+                        width: 65,
+                        height: 54,
+                        fit: BoxFit.cover,
+                        filterQuality: FilterQuality.medium,
+                      ),
+                    ),
+                    const SizedBox(height: 3),
                     Text(
                       '$value',
                       style: TextStyle(
-                        fontSize: 30,
+                        fontSize: 26,
                         height: 1,
                         fontWeight: FontWeight.w900,
                         color: visualTheme == 1 ? spec.accent : Colors.white,
                         shadows: const [Shadow(color: Colors.black87, blurRadius: 4)],
                       ),
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 2),
                     Text(
                       visualTheme == 1 ? 'Prestige' : visualTheme == 2 ? 'Impact' : 'Pagaille',
                       style: TextStyle(
@@ -642,6 +653,81 @@ class _GamePageState extends State<GamePage> {
         ),
       ),
     );
+  }
+
+  Widget galleryTile(int value) {
+    final c = spec.cardPalette[value - 1];
+    return InkWell(
+      onTap: () => showDialog<void>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          backgroundColor: spec.surface,
+          title: Text('Carte $value — ${cardMascots[value - 1]}',
+              style: TextStyle(color: spec.accent)),
+          content: ClipRRect(
+            borderRadius: BorderRadius.circular(18),
+            child: Image.asset(cardArtwork(visualTheme, value),
+                width: 290, fit: BoxFit.contain),
+          ),
+          actions: [TextButton(onPressed: () => Navigator.pop(ctx),
+              child: const Text('Fermer'))],
+        ),
+      ),
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: c.withValues(alpha: 0.18),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: c.withValues(alpha: 0.7)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: AspectRatio(aspectRatio: 1,
+                  child: Image.asset(cardArtwork(visualTheme, value),
+                      fit: BoxFit.cover)),
+            ),
+            const SizedBox(height: 7),
+            Text('CARTE $value', style: const TextStyle(fontWeight: FontWeight.w900)),
+            Text(cardMascots[value - 1],
+                style: const TextStyle(fontSize: 11, color: Colors.white70)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void showGallery() {
+    Navigator.of(context).push(MaterialPageRoute<void>(
+      builder: (ctx) => Scaffold(
+        backgroundColor: spec.surface,
+        appBar: AppBar(
+          backgroundColor: spec.panel,
+          title: Text('Galerie — ${spec.name}'),
+        ),
+        body: SafeArea(
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 880),
+              child: GridView.builder(
+                padding: const EdgeInsets.all(14),
+                gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                  maxCrossAxisExtent: 190,
+                  mainAxisSpacing: 12,
+                  crossAxisSpacing: 12,
+                  childAspectRatio: 0.8,
+                ),
+                itemCount: 6,
+                itemBuilder: (_, i) => galleryTile(i + 1),
+              ),
+            ),
+          ),
+        ),
+      ),
+    ));
   }
 
   Widget welcome() {
@@ -743,6 +829,11 @@ class _GamePageState extends State<GamePage> {
           ),
           const SizedBox(height: 10),
           TextButton.icon(
+            onPressed: showGallery,
+            icon: const Icon(Icons.collections_outlined),
+            label: const Text('GALERIE DES CARTES'),
+          ),
+          TextButton.icon(
             onPressed: showRules,
             icon: const Icon(Icons.menu_book),
             label: const Text('COMMENT JOUER ?'),
@@ -775,6 +866,7 @@ class _GamePageState extends State<GamePage> {
               ),
             ),
             pill('Objectif $target', color: spec.accent),
+            IconButton(onPressed: showGallery, tooltip: 'Galerie des cartes', icon: const Icon(Icons.collections_outlined)),
             IconButton(onPressed: showRules, icon: const Icon(Icons.help_outline)),
             PopupMenuButton<int>(
               tooltip: 'Changer de thème',

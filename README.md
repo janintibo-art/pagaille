@@ -24,3 +24,12 @@ La V2 propose le jeu local sur un seul écran, à tour de rôle. Les mains sont 
 - Visuels d'accueil inclus hors connexion dans `assets/themes/`.
 - `imprimable/cartes.html` : même choix parmi les trois styles, 48 cartes au format 63 × 88 mm en 6 feuilles A4.
 - Les cartes spéciales vues dans les maquettes sont **conceptuelles** : aucune carte Piège/Échange/Double n'est ajoutée aux règles de réflexion de la V2 à cette étape.
+
+## V6 : galerie et illustrations des personnages
+
+- 18 portraits illustrés originaux : six personnages déclinés dans les trois univers graphiques.
+- Les illustrations apparaissent sur les cartes jouables Flutter Android/Windows.
+- Nouvelle galerie dans l'écran d'accueil et en partie ; toucher un personnage l'affiche en grand.
+- Les mêmes portraits sont utilisés pour les planches A4 `imprimable/cartes.html` et leurs aperçus.
+- Assets communs dans `imprimable/illustrations/`, déclarés dans `pubspec.yaml`.
+- Aucune modification des règles, ni ajout des cartes spéciales encore conceptuelles.

@@ -20,7 +20,7 @@ button{background:#39236a;color:white;border:none}
 .card::before{content:"";position:absolute;inset:6px;border:1.5px solid #ffffff77;border-radius:3mm}
 .card .corner{position:absolute;top:10px;left:12px;font-size:30px;font-weight:900;text-shadow:1px 3px 1px #0005}
 .card .corner.bottom{top:auto;left:auto;bottom:10px;right:12px;transform:rotate(180deg)}
-.card .mascot{font-size:62px;filter:drop-shadow(0 3px 4px #0006)}
+.card .mascot{display:block;width:48mm;height:48mm;object-fit:cover;border-radius:3mm;border:1px solid #ffffffaa;box-shadow:0 3px 8px #0006}
 .card .big{font-size:56px;font-weight:900;line-height:1;text-shadow:1px 3px 1px #0006}
 .card .brand{position:absolute;bottom:10px;left:10px;font-weight:900;font-size:11px;letter-spacing:1px}
 .card .tag{position:absolute;top:11px;right:11px;font-size:11px;font-weight:900;opacity:.9}
@@ -38,7 +38,7 @@ button{background:#39236a;color:white;border:none}
 .bd .big{font-family:Impact,Arial,sans-serif}
 .preview{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
 .mini{width:92px;height:128px;border-radius:12px;padding:8px;color:white;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(145deg,var(--a),var(--b));position:relative;box-shadow:0 5px 14px #0002}
-.mini span:first-child{position:absolute;left:8px;top:7px;font-weight:900}
+.mini span:first-child{position:absolute;left:8px;top:7px;font-weight:900;z-index:1;text-shadow:0 1px 4px #000}
 .footer{max-width:940px;margin:20px auto;padding:10px;color:#555}
 @media print{header,.footer{display:none!important}body{background:white}.sheet{margin:0;page-break-after:always}.card{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
 </style>
@@ -66,7 +66,7 @@ button{background:#39236a;color:white;border:none}
 <div class="preview" id="preview"></div>
 </header>
 <main id="pages"></main>
-<div class="footer">V5 : l’habillage papier est désormais harmonisé avec les trois styles du jeu numérique.</div>
+<div class="footer">V6 : 18 illustrations originales, imprimables et identiques à celles du jeu numérique. Les cartes spéciales restent conceptuelles.</div>
 <script>
 const themes={
   colore:{palette:['#8e4fce','#218de0','#3fb852','#ffd039','#fc8130','#e94a66'],back:['#6928b8','#ffce39'],icons:['🐢','🐰','🦊','🐔','🦝','🐱'],tag:'Pagaille'},
@@ -75,11 +75,11 @@ const themes={
 };
 function miniPreview(theme){
   const t=themes[theme];
-  return [1,3,6].map(v=>`<div class="mini ${theme}" style="--a:${t.palette[v-1]};--b:#281a43"><span>${v}</span><div style="font-size:38px">${t.icons[v-1]}</div><div style="font-size:30px;font-weight:900">${v}</div><div style="font-size:10px;font-weight:900">${t.tag}</div></div>`).join('');
+  return [1,3,6].map(v=>`<div class="mini ${theme}" style="--a:${t.palette[v-1]};--b:#281a43"><span>${v}</span><img src="illustrations/${theme}_${v}.jpg" alt="Carte ${v}" style="width:68px;height:68px;object-fit:cover;border-radius:8px"><div style="font-size:21px;font-weight:900">${v}</div><div style="font-size:10px;font-weight:900">${t.tag}</div></div>`).join('');
 }
 function faceCard(theme,n){
   const t=themes[theme];
-  return `<article class="card" style="--a:${t.palette[n-1]};--b:#281a43"><span class="corner">${n}</span><span class="tag">${t.tag}</span><span class="mascot">${t.icons[n-1]}</span><span class="big">${n}</span><span class="brand">PAGAILLE !</span><span class="corner bottom">${n}</span></article>`;
+  return `<article class="card" style="--a:${t.palette[n-1]};--b:#281a43"><span class="corner">${n}</span><span class="tag">${t.tag}</span><img class="mascot" src="illustrations/${theme}_${n}.jpg" alt="Illustration carte ${n}"><span class="big">${n}</span><span class="brand">PAGAILLE !</span><span class="corner bottom">${n}</span></article>`;
 }
 function backCard(theme){
   const t=themes[theme];
@@ -101,7 +101,7 @@ function render(){
   if(mode==='backs' || mode==='both'){
     for(let i=0;i<48;i+=9){
       html+=`<section class="sheet ${theme}">`;
-      for(let j=0;j<9;j++) html+=backCard(theme);
+      for(let j=0;j<values.slice(i,i+9).length;j++) html+=backCard(theme);
       html+='</section>';
     }
   }
