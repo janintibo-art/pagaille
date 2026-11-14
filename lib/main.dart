@@ -144,6 +144,8 @@ class _GamePageState extends State<GamePage> {
   bool diceMode = false;
   bool started = false;
   bool finished = false;
+  bool animationsEnabled = true;
+  int celebration = 0;
   int discarded = 0;
   String message = 'Prépare tes meilleurs calculs.';
 
@@ -177,6 +179,7 @@ class _GamePageState extends State<GamePage> {
       selected = -1;
       turn = 1;
       discarded = 0;
+      celebration = 0;
       started = true;
       finished = false;
       message = 'Choisis une carte puis une pile. Atteins $target exactement !';
@@ -213,6 +216,7 @@ class _GamePageState extends State<GamePage> {
       if (sumPile(pileIndex) == target) {
         final points = piles[pileIndex].length + 2;
         scores[current] += points;
+        celebration++;
         piles[pileIndex].clear();
         message = 'BINGO ! ${names[current]} marque $points points et vide la pile ${pileIndex + 1}.';
       } else {
@@ -256,6 +260,97 @@ class _GamePageState extends State<GamePage> {
         .map((i) => names[i])
         .join(' et ');
     return '$champs — $maxScore points';
+  }
+
+  Duration motion(int milliseconds) => animationsEnabled
+      ? Duration(milliseconds: milliseconds)
+      : Duration.zero;
+
+  Widget animatedHandCard(int index) {
+    final child = numberCard(
+      hands[current][index],
+      active: selected == index,
+      onTap: () => setState(() => selected = index),
+    );
+    if (!animationsEnabled) return child;
+    return TweenAnimationBuilder<double>(
+      key: ValueKey('deal-$turn-$current-$index'),
+      tween: Tween<double>(begin: 0, end: 1),
+      duration: Duration(milliseconds: 330 + index * 85),
+      curve: Curves.easeOutBack,
+      builder: (context, progress, card) => Opacity(
+        opacity: progress.clamp(0.0, 1.0).toDouble(),
+        child: Transform.translate(
+          offset: Offset(0, (1 - progress) * 48),
+          child: Transform.rotate(
+            angle: (1 - progress) * (index.isEven ? -0.14 : 0.14),
+            child: card,
+          ),
+        ),
+      ),
+      child: child,
+    );
+  }
+
+  Widget cardBack({double width = 57, double height = 78}) {
+    return Container(
+      width: width,
+      height: height,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10),
+        gradient: LinearGradient(
+          colors: [spec.accent2, spec.panel2, spec.surface],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        border: Border.all(color: spec.accent, width: 2),
+        boxShadow: const [BoxShadow(color: Colors.black38, blurRadius: 7)],
+      ),
+      child: Center(
+        child: Container(
+          margin: const EdgeInsets.all(5),
+          decoration: BoxDecoration(
+            border: Border.all(color: spec.accent.withValues(alpha: 0.7)),
+            borderRadius: BorderRadius.circular(5),
+          ),
+          child: Center(
+            child: Text(
+              visualTheme == 1 ? '◆' : visualTheme == 2 ? '✸' : '✦',
+              style: TextStyle(fontSize: width * 0.44, color: spec.accent),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget celebrateScore() {
+    final child = Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(18),
+        color: spec.accent.withValues(alpha: 0.18),
+        border: Border.all(color: spec.accent),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.auto_awesome, color: spec.accent, size: 32),
+          Text('PILE CAPTURÉE !',
+            style: TextStyle(color: spec.accent, fontWeight: FontWeight.w900)),
+          Text(message, textAlign: TextAlign.center),
+        ],
+      ),
+    );
+    if (!animationsEnabled) return child;
+    return TweenAnimationBuilder<double>(
+      key: ValueKey('score-$celebration'),
+      tween: Tween<double>(begin: 0.76, end: 1),
+      duration: const Duration(milliseconds: 510),
+      curve: Curves.elasticOut,
+      builder: (_, scale, widget) => Transform.scale(scale: scale, child: widget),
+      child: child,
+    );
   }
 
   Widget pill(String text, {Color? color}) {
@@ -431,7 +526,7 @@ class _GamePageState extends State<GamePage> {
         onTap: selectable ? () => play(index) : null,
         borderRadius: BorderRadius.circular(22),
         child: AnimatedContainer(
-          duration: const Duration(milliseconds: 180),
+          duration: motion(250),
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
             gradient: LinearGradient(
@@ -541,7 +636,7 @@ class _GamePageState extends State<GamePage> {
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 190),
+        duration: motion(220),
         width: 86,
         height: 124,
         margin: EdgeInsets.fromLTRB(5, active ? 0 : 8, 5, active ? 12 : 2),
@@ -807,6 +902,13 @@ class _GamePageState extends State<GamePage> {
                 ),
                 SwitchListTile(
                   contentPadding: EdgeInsets.zero,
+                  value: animationsEnabled,
+                  onChanged: (v) => setState(() => animationsEnabled = v),
+                  title: const Text('✨ Animations des cartes'),
+                  subtitle: const Text('Distribution, sélection et effets de score'),
+                ),
+                SwitchListTile(
+                  contentPadding: EdgeInsets.zero,
                   value: diceMode,
                   activeColor: spec.accent,
                   onChanged: (v) => setState(() => diceMode = v),
@@ -868,6 +970,11 @@ class _GamePageState extends State<GamePage> {
             pill('Objectif $target', color: spec.accent),
             IconButton(onPressed: showGallery, tooltip: 'Galerie des cartes', icon: const Icon(Icons.collections_outlined)),
             IconButton(onPressed: showRules, icon: const Icon(Icons.help_outline)),
+            IconButton(
+              tooltip: animationsEnabled ? 'Désactiver les animations' : 'Activer les animations',
+              icon: Icon(animationsEnabled ? Icons.motion_photos_on : Icons.motion_photos_off),
+              onPressed: () => setState(() => animationsEnabled = !animationsEnabled),
+            ),
             PopupMenuButton<int>(
               tooltip: 'Changer de thème',
               icon: const Icon(Icons.palette_outlined),
@@ -903,6 +1010,19 @@ class _GamePageState extends State<GamePage> {
           ),
           child: Column(
             children: [
+              if (!finished) Padding(
+                padding: const EdgeInsets.only(bottom: 7),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    cardBack(width: 32, height: 43),
+                    const SizedBox(width: 10),
+                    Text('À toi de jouer !', style: TextStyle(
+                      color: spec.accent2, fontWeight: FontWeight.w800,
+                    )),
+                  ],
+                ),
+              ),
               Text(
                 finished ? '🏆 FIN DE PARTIE' : 'Au tour de ${names[current]}',
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: finished ? spec.accent : Colors.white),
@@ -927,6 +1047,11 @@ class _GamePageState extends State<GamePage> {
           child: ListView(
             children: [
               ...List<Widget>.generate(3, pileTile),
+              if (celebration > 0 && message.startsWith('BINGO !'))
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: celebrateScore(),
+                ),
               if (finished)
                 Container(
                   margin: const EdgeInsets.only(top: 4, bottom: 12),
@@ -938,7 +1063,15 @@ class _GamePageState extends State<GamePage> {
                   ),
                   child: Column(
                     children: [
-                      Text('🏆 ${winners()}', textAlign: TextAlign.center, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900)),
+                      TweenAnimationBuilder<double>(
+                        key: ValueKey('victory-$turn'),
+                        tween: Tween<double>(begin: animationsEnabled ? 0.8 : 1, end: 1),
+                        duration: motion(750),
+                        curve: Curves.elasticOut,
+                        builder: (_, scale, child) => Transform.scale(scale: scale, child: child),
+                        child: Text('🏆 ${winners()}', textAlign: TextAlign.center,
+                          style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900)),
+                      ),
                       const SizedBox(height: 8),
                       const Text(
                         'Les cartes restées sur les piles ne rapportent aucun point.',
@@ -965,11 +1098,7 @@ class _GamePageState extends State<GamePage> {
             child: Row(
               children: List<Widget>.generate(
                 hands[current].length,
-                (i) => numberCard(
-                  hands[current][i],
-                  active: selected == i,
-                  onTap: () => setState(() => selected = i),
-                ),
+                animatedHandCard,
               ),
             ),
           ),

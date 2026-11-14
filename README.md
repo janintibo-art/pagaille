@@ -33,3 +33,12 @@ La V2 propose le jeu local sur un seul écran, à tour de rôle. Les mains sont 
 - Les mêmes portraits sont utilisés pour les planches A4 `imprimable/cartes.html` et leurs aperçus.
 - Assets communs dans `imprimable/illustrations/`, déclarés dans `pubspec.yaml`.
 - Aucune modification des règles, ni ajout des cartes spéciales encore conceptuelles.
+
+## V7 : animations (désactivables)
+
+- Distribution des mains animée à chaque nouveau tour (translation, rotation légère, apparition).
+- Sélection d’une carte et mise en avant des piles compatibles avec transitions plus souples.
+- Effet de réussite lors d’une pile fermée et animation du résultat final.
+- Dos de carte thématisé dans le bandeau du joueur actif.
+- Interrupteur d’animations sur l’accueil et bouton dédié pendant la partie.
+- Aucun changement de règles ou de carte imprimable ; les assets V6 sont réutilisés.
