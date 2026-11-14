@@ -1,0 +1,14 @@
+name: pagaille
+description: Jeu de réflexion de 2 à 6 joueurs, numérique et imprimable
+publish_to: none
+version: 2.0.0+2
+environment:
+  sdk: '>=3.4.0 <4.0.0'
+dependencies:
+  flutter:
+    sdk: flutter
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+flutter:
+  uses-material-design: true
