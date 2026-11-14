@@ -245,7 +245,7 @@ class _GamePageState extends State<GamePage> {
       const Text('TA MAIN — choisis une carte', style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1)),
       SizedBox(height: 119, child: SingleChildScrollView(scrollDirection: Axis.horizontal, child: Row(mainAxisAlignment: MainAxisAlignment.center,
         children: List.generate(hands[current].length, (i) => numberCard(hands[current][i], active: selected == i,
-          onTap: () => setState(() => selected = i))))))),
+          onTap: () => setState(() => selected = i)))))),
       if (!hasMove) TextButton.icon(onPressed: selected < 0 ? null : discardBlocked, icon: const Icon(Icons.delete_outline), label: const Text('Aucun coup possible : défausser la carte choisie')),
       if (hasMove) const Text('Puis touche une pile compatible ci-dessus.', style: TextStyle(color: Colors.white70, fontSize: 12)),
     ],
